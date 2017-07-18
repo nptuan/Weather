@@ -14,6 +14,6 @@ import retrofit2.http.QueryMap;
  */
 
 public interface RetrofitInterface {
-    @GET("/data/2.5/weather")
+    @GET("/data/2.5/forecast")
     Call<JSONObject> getWeatherInfo(@QueryMap Map<String, String> options);
 }

@@ -14,6 +14,7 @@ import com.tuannp.weather.service.RetrofitInterface;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +30,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TodayWeatherFragment extends Fragment {
 
+    String body = null;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -45,26 +47,44 @@ public class TodayWeatherFragment extends Fragment {
         RetrofitInterface service = retrofit.create(RetrofitInterface.class);
 
         Map<String, String> queryMap = new HashMap<>();
-        queryMap.put("q", "Ho-Chi-Minh");
-        queryMap.put("type", "accurate");
-        queryMap.put("mode", "json");
-        queryMap.put("units", "metric");
+        queryMap.put("id", "524901");
+//        queryMap.put("type", "accurate");
+//        queryMap.put("mode", "json");
+//        queryMap.put("units", "metric");
         queryMap.put("appid", "c08befbfcde1c0ea8fbec0586c2538b8");
-
-        Call<JSONObject> result = service.getWeatherInfo(queryMap);
-        result.enqueue(new Callback<JSONObject>() {
+        final Call<JSONObject> call = service.getWeatherInfo(queryMap);
+        new Thread(new Runnable() {
             @Override
-            public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
-                if (response.isSuccessful()) {
-                    ((TextView)view.findViewById(R.id.textView)).setText(response.body().toString());
+            public void run() {
+
+                try {
+                    body = call.execute().body().toString();
                 }
-            }
+                catch (IOException e) {
 
-            @Override
-            public void onFailure(Call<JSONObject> call, Throwable t) {
+                }
+                getActivity().runOnUiThread(new Runnable() {
+                    public void run(){
+                        ((TextView)view.findViewById(R.id.textView)).setText(body);
+                    }
+                });
 
             }
-        });
+        }).start();
+
+//        call.enqueue(new Callback<JSONObject>() {
+//            @Override
+//            public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
+//                if (response.isSuccessful()) {
+//                    ((TextView)view.findViewById(R.id.textView)).setText(response.body().toString());
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<JSONObject> call, Throwable t) {
+//
+//            }
+//        });
 
 
         return view;
