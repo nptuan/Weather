@@ -31,8 +31,8 @@ public class MainActivity extends AppCompatActivity {
     setSupportActionBar(bindings.toolbar);
     getSupportActionBar().show();
 
-    bindings.tabLayout.addTab(bindings.tabLayout.newTab().setText("Tab 1"));
-    bindings.tabLayout.addTab(bindings.tabLayout.newTab().setText("Tab 2"));
+    bindings.tabLayout.addTab(bindings.tabLayout.newTab().setText("Daily"));
+    bindings.tabLayout.addTab(bindings.tabLayout.newTab().setText("Weekly"));
     bindings.tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
     final PagerAdapter adapter = new PagerAdapter

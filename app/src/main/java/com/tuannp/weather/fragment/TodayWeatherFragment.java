@@ -5,11 +5,14 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.tuannp.weather.R;
+import com.tuannp.weather.model.TodayWeatherResponse;
 import com.tuannp.weather.service.RetrofitInterface;
 
 import org.json.JSONObject;
@@ -30,7 +33,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TodayWeatherFragment extends Fragment {
 
-    String body = null;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -47,44 +49,27 @@ public class TodayWeatherFragment extends Fragment {
         RetrofitInterface service = retrofit.create(RetrofitInterface.class);
 
         Map<String, String> queryMap = new HashMap<>();
-        queryMap.put("id", "524901");
-//        queryMap.put("type", "accurate");
-//        queryMap.put("mode", "json");
-//        queryMap.put("units", "metric");
+        queryMap.put("q", "Long-An");
+        queryMap.put("type", "accurate");
+        queryMap.put("mode", "json");
+        queryMap.put("units", "metric");
         queryMap.put("appid", "c08befbfcde1c0ea8fbec0586c2538b8");
-        final Call<JSONObject> call = service.getWeatherInfo(queryMap);
-        new Thread(new Runnable() {
+        final Call<TodayWeatherResponse> call = service.getWeatherInfo(queryMap);
+        call.enqueue(new Callback<TodayWeatherResponse>() {
             @Override
-            public void run() {
-
-                try {
-                    body = call.execute().body().toString();
+            public void onResponse(Call<TodayWeatherResponse> call, Response<TodayWeatherResponse> response) {
+                if (response.isSuccessful()) {
+                    String result = response.body().getName() + "\ntemp " + response.body().getMain().getTemp() + "\nweather " + response.body().getWeather().get(0).getDescription();
+                    ((TextView)view.findViewById(R.id.textView)).setText(result);
+                    Glide.with(getContext()).load("http://openweathermap.org/img/w/"+ response.body().getWeather().get(0).getIcon() + ".png").into((ImageView) view.findViewById(R.id.imageView));
                 }
-                catch (IOException e) {
+            }
 
-                }
-                getActivity().runOnUiThread(new Runnable() {
-                    public void run(){
-                        ((TextView)view.findViewById(R.id.textView)).setText(body);
-                    }
-                });
+            @Override
+            public void onFailure(Call<TodayWeatherResponse> call, Throwable t) {
 
             }
-        }).start();
-
-//        call.enqueue(new Callback<JSONObject>() {
-//            @Override
-//            public void onResponse(Call<JSONObject> call, Response<JSONObject> response) {
-//                if (response.isSuccessful()) {
-//                    ((TextView)view.findViewById(R.id.textView)).setText(response.body().toString());
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<JSONObject> call, Throwable t) {
-//
-//            }
-//        });
+        });
 
 
         return view;

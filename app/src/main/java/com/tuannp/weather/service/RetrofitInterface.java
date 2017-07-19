@@ -1,5 +1,8 @@
 package com.tuannp.weather.service;
 
+import com.tuannp.weather.model.TodayWeatherResponse;
+import com.tuannp.weather.model.WeeklyWeatherResponse;
+
 import org.json.JSONObject;
 
 import java.util.Map;
@@ -14,6 +17,9 @@ import retrofit2.http.QueryMap;
  */
 
 public interface RetrofitInterface {
-    @GET("/data/2.5/forecast")
-    Call<JSONObject> getWeatherInfo(@QueryMap Map<String, String> options);
+    @GET("/data/2.5/weather")
+    Call<TodayWeatherResponse> getWeatherInfo(@QueryMap Map<String, String> options);
+
+    @GET("/data/2.5/forecast/daily")
+    Call<WeeklyWeatherResponse> getWeeklyWeatherInfo(@QueryMap Map<String, String> options);
 }
