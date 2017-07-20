@@ -1,7 +1,12 @@
 package com.tuannp.weather.fragment;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +17,8 @@ import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.tuannp.weather.R;
+import com.tuannp.weather.adapter.WeeklyWeatherAdapter;
+import com.tuannp.weather.databinding.FragmentWeeklyWeatherBinding;
 import com.tuannp.weather.model.TodayWeatherResponse;
 import com.tuannp.weather.model.WeeklyWeatherResponse;
 import com.tuannp.weather.service.RetrofitInterface;
@@ -31,9 +38,11 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class WeeklyWeatherFragment extends Fragment {
 
+    FragmentWeeklyWeatherBinding binding;
+    WeeklyWeatherAdapter adapter;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.fragment_weekly_weather, container, false);
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_weekly_weather, container, false);
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
@@ -56,9 +65,17 @@ public class WeeklyWeatherFragment extends Fragment {
             @Override
             public void onResponse(Call<WeeklyWeatherResponse> call, Response<WeeklyWeatherResponse> response) {
                 if (response.isSuccessful()) {
-                    String result = response.body().getCity().getName() + "\ntemp " + response.body().getList().get(0).getTemp().getDay() + "\nweather " + response.body().getList().get(0).getWeather().get(0).getDescription();
-                    ((TextView)view.findViewById(R.id.textView)).setText(result);
-                    Glide.with(getContext()).load("http://openweathermap.org/img/w/"+ response.body().getList().get(0).getWeather().get(0).getIcon() + ".png").into((ImageView) view.findViewById(R.id.imageView));
+
+                    adapter = new WeeklyWeatherAdapter(response.body().getList(), getContext());
+                    RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
+                    binding.recyclerViewWeekly.setLayoutManager(mLayoutManager);
+                    //recyclerView.addItemDecoration(new GridSpacingItemDecoration(2, dpToPx(10), true));
+                    binding.recyclerViewWeekly.setItemAnimator(new DefaultItemAnimator());
+                    binding.recyclerViewWeekly.setAdapter(adapter);
+
+//                    String result = response.body().getCity().getName() + "\ntemp " + response.body().getList().get(0).getTemp().getDay() + "\nweather " + response.body().getList().get(0).getWeather().get(0).getDescription();
+//                    ((TextView)view.findViewById(R.id.textView)).setText(result);
+//                    Glide.with(getContext()).load("http://openweathermap.org/img/w/"+ response.body().getList().get(0).getWeather().get(0).getIcon() + ".png").into((ImageView) view.findViewById(R.id.imageView));
                 }
             }
 
@@ -67,6 +84,6 @@ public class WeeklyWeatherFragment extends Fragment {
 
             }
         });
-        return view;
+        return binding.getRoot();
     }
 }
