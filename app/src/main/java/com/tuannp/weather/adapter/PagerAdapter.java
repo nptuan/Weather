@@ -12,11 +12,15 @@ import com.tuannp.weather.fragment.WeeklyWeatherFragment;
  */
 
 public class PagerAdapter extends FragmentStatePagerAdapter {
-    int mNumOfTabs;
+    private int mNumOfTabs;
+    private TodayWeatherFragment todayWeatherFragment;
+    private WeeklyWeatherFragment weeklyWeatherFragment;
 
     public PagerAdapter(FragmentManager fm, int NumOfTabs) {
         super(fm);
         this.mNumOfTabs = NumOfTabs;
+        todayWeatherFragment = new TodayWeatherFragment();
+        weeklyWeatherFragment = new WeeklyWeatherFragment();
     }
 
     @Override
@@ -24,10 +28,8 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
 
         switch (position) {
             case 0:
-                TodayWeatherFragment todayWeatherFragment = new TodayWeatherFragment();
                 return todayWeatherFragment;
             case 1:
-                WeeklyWeatherFragment weeklyWeatherFragment = new WeeklyWeatherFragment();
                 return weeklyWeatherFragment;
             default:
                 return null;
@@ -37,5 +39,10 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public int getCount() {
         return mNumOfTabs;
+    }
+
+    public void refreshData() {
+        todayWeatherFragment.refreshData();
+        weeklyWeatherFragment.refreshData();
     }
 }

@@ -3,10 +3,12 @@ package com.tuannp.weather.fragment;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,13 +18,18 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.tuannp.weather.MainActivity;
 import com.tuannp.weather.R;
 import com.tuannp.weather.adapter.WeeklyWeatherAdapter;
 import com.tuannp.weather.databinding.FragmentWeeklyWeatherBinding;
+import com.tuannp.weather.model.List;
 import com.tuannp.weather.model.TodayWeatherResponse;
 import com.tuannp.weather.model.WeeklyWeatherResponse;
 import com.tuannp.weather.service.RetrofitInterface;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +50,11 @@ public class WeeklyWeatherFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_weekly_weather, container, false);
+        setData();
+        return binding.getRoot();
+    }
+
+    private void setData() {
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
@@ -54,28 +66,36 @@ public class WeeklyWeatherFragment extends Fragment {
 
         RetrofitInterface service = retrofit.create(RetrofitInterface.class);
 
+        setWeeklyWeatherData(service);
+    }
+
+    private void setWeeklyWeatherData(RetrofitInterface service) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM");
+        String currentDateTime= sdf.format(new Date());
+        final String[] date = currentDateTime.split("-");
         Map<String, String> queryMap = new HashMap<>();
-        queryMap.put("q", "Long-An");
+        queryMap.put("q", MainActivity.location);
         queryMap.put("type", "accurate");
-        queryMap.put("cnt", "7");
+        queryMap.put("cnt", "8");
         queryMap.put("units", "metric");
         queryMap.put("appid", "c08befbfcde1c0ea8fbec0586c2538b8");
+
         final Call<WeeklyWeatherResponse> call = service.getWeeklyWeatherInfo(queryMap);
         call.enqueue(new Callback<WeeklyWeatherResponse>() {
             @Override
             public void onResponse(Call<WeeklyWeatherResponse> call, Response<WeeklyWeatherResponse> response) {
-                if (response.isSuccessful()) {
+                if (response.isSuccessful() & response.body() != null) {
 
-                    adapter = new WeeklyWeatherAdapter(response.body().getList(), getContext());
+                    ((AppCompatActivity)getActivity()).getSupportActionBar()
+                            .setTitle(getResources().getString(R.string.app_name) + " " + response.body().getCity().getName());
+
+                    ArrayList<List> listWeatherData = response.body().getList();
+                    listWeatherData.remove(0);
+                    adapter = new WeeklyWeatherAdapter(listWeatherData, getContext(), date);
                     RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
                     binding.recyclerViewWeekly.setLayoutManager(mLayoutManager);
-                    //recyclerView.addItemDecoration(new GridSpacingItemDecoration(2, dpToPx(10), true));
                     binding.recyclerViewWeekly.setItemAnimator(new DefaultItemAnimator());
                     binding.recyclerViewWeekly.setAdapter(adapter);
-
-//                    String result = response.body().getCity().getName() + "\ntemp " + response.body().getList().get(0).getTemp().getDay() + "\nweather " + response.body().getList().get(0).getWeather().get(0).getDescription();
-//                    ((TextView)view.findViewById(R.id.textView)).setText(result);
-//                    Glide.with(getContext()).load("http://openweathermap.org/img/w/"+ response.body().getList().get(0).getWeather().get(0).getIcon() + ".png").into((ImageView) view.findViewById(R.id.imageView));
                 }
             }
 
@@ -84,6 +104,9 @@ public class WeeklyWeatherFragment extends Fragment {
 
             }
         });
-        return binding.getRoot();
+    }
+
+    public void refreshData() {
+        setData();
     }
 }
