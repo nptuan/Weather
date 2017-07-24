@@ -8,7 +8,7 @@ import com.tuannp.weather.fragment.TodayWeatherFragment;
 import com.tuannp.weather.fragment.WeeklyWeatherFragment;
 
 /**
- * Created by Nguyễn Phương Tuấn on 18-Jul-17.
+ * Created by Nguyễn Phương Tuấn on 23-Jul-17.
  */
 
 public class PagerAdapter extends FragmentStatePagerAdapter {

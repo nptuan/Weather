@@ -16,17 +16,20 @@ import com.tuannp.weather.model.List;
 import java.util.ArrayList;
 
 /**
- * Created by Nguyễn Phương Tuấn on 20-Jul-17.
+ * Created by Nguyễn Phương Tuấn on 23-Jul-17.
  */
 
 public class WeeklyWeatherAdapter extends RecyclerView.Adapter<WeeklyWeatherAdapter.ViewHolder> {
+    //list data to display to view
     private ArrayList<List> mDataset;
     private Context  context;
     String[] date;
 
-    // Provide a reference to the views for each data item
-    // Complex data items may need more than one view per item, and
-    // you provide access to all the views for a data item in a view holder
+    /**
+     * Provide a reference to the views for each data item
+     * Complex data items may need more than one view per item
+     * provide access to all the views for a data item in a view holder
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
         public TextView textViewDate, textViewTempDay, textViewTempNight, textViewDayWeather, textViewHumidity, textViewPressure;
@@ -45,7 +48,6 @@ public class WeeklyWeatherAdapter extends RecyclerView.Adapter<WeeklyWeatherAdap
         }
     }
 
-    // Provide a suitable constructor (depends on the kind of dataset)
     public WeeklyWeatherAdapter(ArrayList<List> myDataset, Context context, String[] date) {
         mDataset = myDataset;
         this.context = context;
@@ -65,8 +67,9 @@ public class WeeklyWeatherAdapter extends RecyclerView.Adapter<WeeklyWeatherAdap
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        // - get element from your dataset at this position
-        // - replace the contents of the view with that element
+        //get element from list at this position
+        //replace the contents of the view with that element
+        //set data to view
         List dayWeather = mDataset.get(position);
         holder.textViewDate.setText((Integer.parseInt(date[0])+position+1)+"/"+date[1]);
         holder.textViewTempDay.setText(Html.fromHtml("Day <b>"+ dayWeather.getTemp().getDay()+"</b>°C"));
@@ -78,7 +81,6 @@ public class WeeklyWeatherAdapter extends RecyclerView.Adapter<WeeklyWeatherAdap
                 .with(context)
                 .load("http://openweathermap.org/img/w/"+ dayWeather.getWeather().get(0).getIcon()+".png")
                 .into(holder.imageViewIcon);
-
         holder.imageViewWeather.setImageResource(getImageResource(dayWeather.getWeather().get(0).getId()));
 
     }
@@ -88,6 +90,11 @@ public class WeeklyWeatherAdapter extends RecyclerView.Adapter<WeeklyWeatherAdap
         return mDataset.size();
     }
 
+    /**
+     * get image resource id base on weather condition
+     * @param weatherId
+     * @return
+     */
     private int getImageResource(int weatherId) {
         if (weatherId < 300) {
             return R.drawable.image_2xx;

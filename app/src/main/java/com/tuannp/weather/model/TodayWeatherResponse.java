@@ -3,7 +3,7 @@ package com.tuannp.weather.model;
 import java.util.ArrayList;
 
 /**
- * Created by Nguyễn Phương Tuấn on 19-Jul-17.
+ * Created by Nguyễn Phương Tuấn on 23-Jul-17.
  */
 
 public class TodayWeatherResponse {

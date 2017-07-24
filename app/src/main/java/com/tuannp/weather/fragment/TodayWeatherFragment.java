@@ -38,7 +38,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
- * Created by Nguyễn Phương Tuấn on 18-Jul-17.
+ * Created by Nguyễn Phương Tuấn on 23-Jul-17.
  */
 
 public class TodayWeatherFragment extends Fragment {
@@ -51,6 +51,9 @@ public class TodayWeatherFragment extends Fragment {
         return binding.getRoot();
     }
 
+    /**
+     * function set data for today and tomorrow weather information
+     */
     private void setData() {
         Gson gson = new GsonBuilder()
                 .setLenient()
@@ -66,9 +69,16 @@ public class TodayWeatherFragment extends Fragment {
         setTomorrowWeatherData(service);
     }
 
+    /**
+     * function to get and set data for today weather information
+     * @param service
+     */
     private void setTodayWeatherData(RetrofitInterface service) {
+        //get date to display update time
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM hh:mm");
         final String currentDateTime = sdf.format(new Date());
+
+        //query map to call weather api
         Map<String, String> todayWeatherQueryMap = new HashMap<>();
         todayWeatherQueryMap.put("q", MainActivity.location);
         todayWeatherQueryMap.put("type", "accurate");
@@ -76,12 +86,14 @@ public class TodayWeatherFragment extends Fragment {
         todayWeatherQueryMap.put("units", "metric");
         todayWeatherQueryMap.put("appid", "c08befbfcde1c0ea8fbec0586c2538b8");
 
+        //make a call request to get weather info
         final Call<TodayWeatherResponse> weatherInfoCall = service.getWeatherInfo(todayWeatherQueryMap);
         weatherInfoCall.enqueue(new Callback<TodayWeatherResponse>() {
             @Override
             public void onResponse(Call<TodayWeatherResponse> call, Response<TodayWeatherResponse> response) {
-                if (response.isSuccessful() & response.body() != null) {
 
+                //if response success, update weather data to view
+                if (response.isSuccessful() & response.body() != null) {
                     binding.itemTodayWeather.textViewName.setText(response.body().getName());
                     binding.itemTodayWeather.textViewCountry.setText(response.body().getSys().getCountry());
                     binding.itemTodayWeather.textViewWeatherName.setText(response.body().getWeather().get(0).getMain());
@@ -93,11 +105,13 @@ public class TodayWeatherFragment extends Fragment {
                     binding.itemTodayWeather.textViewPressure.setText(Html.fromHtml("Pressure <b>" + response.body().getMain().getPressure()+"</b> hPa"));
                     binding.itemTodayWeather.textViewLastUpdate.setText(Html.fromHtml("Updated: " + currentDateTime));
 
+                    //display weather icon to imageView
                     Glide.with(getContext())
                             .load("http://openweathermap.org/img/w/"+ response.body().getWeather().get(0).getIcon() + ".png")
                             .into(binding.itemTodayWeather.imageViewIcon);
                     binding.itemTodayWeather.imageViewWeather.setImageResource(getImageResource(response.body().getWeather().get(0).getId()));
                 }
+                //if request fail, show error message in Snakebar
                 else {
                     JSONObject jsonObject;
                     try {
@@ -116,7 +130,13 @@ public class TodayWeatherFragment extends Fragment {
         });
     }
 
+    /**
+     * function to get and set data for tomorrow weather information
+     * @param service
+     */
     private void setTomorrowWeatherData(RetrofitInterface service) {
+
+        //query map to call weather api
         Map<String, String> weeklyWeatherQueryMap = new HashMap<>();
         weeklyWeatherQueryMap.put("q", MainActivity.location);
         weeklyWeatherQueryMap.put("type", "accurate");
@@ -124,10 +144,12 @@ public class TodayWeatherFragment extends Fragment {
         weeklyWeatherQueryMap.put("units", "metric");
         weeklyWeatherQueryMap.put("appid", "c08befbfcde1c0ea8fbec0586c2538b8");
 
+        //make a call request to get weather info
         final Call<WeeklyWeatherResponse> weeklyWeatherInfoCall = service.getWeeklyWeatherInfo(weeklyWeatherQueryMap);
         weeklyWeatherInfoCall.enqueue(new Callback<WeeklyWeatherResponse>() {
             @Override
             public void onResponse(Call<WeeklyWeatherResponse> call, Response<WeeklyWeatherResponse> response) {
+                //if response success, update weather data to view
                 if (response.isSuccessful() & response.body() != null) {
                     List dayWeather = response.body().getList().get(1);
                     binding.itemTomorrowWeather.textViewDate.setText("Tomorrow");
@@ -136,6 +158,8 @@ public class TodayWeatherFragment extends Fragment {
                     binding.itemTomorrowWeather.textViewHumidity.setText(Html.fromHtml("Humidity <b>"+ dayWeather.getHumidity()+"</b>%"));
                     binding.itemTomorrowWeather.textViewPressure.setText(Html.fromHtml("Pressure <b>"+ dayWeather.getPressure()+"</b> hPa"));
                     binding.itemTomorrowWeather.textViewDayWeather.setText(dayWeather.getWeather().get(0).getDescription()+"");
+
+                    //display weather icon to imageView
                     Glide
                             .with(getContext())
                             .load("http://openweathermap.org/img/w/"+ dayWeather.getWeather().get(0).getIcon()+".png")
@@ -144,7 +168,7 @@ public class TodayWeatherFragment extends Fragment {
                     binding.itemTomorrowWeather.imageViewWeather.setImageResource(getImageResource(dayWeather.getWeather().get(0).getId()));
                 }
             }
-
+            //if request fail, show error message in Snakebar
             @Override
             public void onFailure(Call<WeeklyWeatherResponse> call, Throwable t) {
 
@@ -152,10 +176,19 @@ public class TodayWeatherFragment extends Fragment {
         });
     }
 
+    /**
+     * refresh data when user choose Refresh button
+     */
     public void refreshData() {
         setData();
     }
 
+
+    /**
+     * get image resource id base on weather condition
+     * @param weatherId
+     * @return
+     */
     private int getImageResource(int weatherId) {
         if (weatherId < 300) {
             return R.drawable.image_2xx;

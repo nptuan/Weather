@@ -16,10 +16,17 @@ import android.widget.LinearLayout;
 import com.tuannp.weather.adapter.PagerAdapter;
 import com.tuannp.weather.databinding.ActivityMainBinding;
 
+/**
+ * Created by Nguyễn Phương Tuấn on 23-Jul-17.
+ */
+
 public class MainActivity extends AppCompatActivity {
 
+    //key to save location to SharePreferences
     private final String LOCATION_KEY = "LOCATION_KEY";
     ActivityMainBinding bindings;
+
+    //default location is Tokyo
     public static String location = "Tokyo";
     private PagerAdapter pagerAdapter;
     private SharedPreferences sharedPreferences;
@@ -36,6 +43,10 @@ public class MainActivity extends AppCompatActivity {
         setUpTabLayout();
     }
 
+    /**
+     * setUp TabLayout, 2 fragment: DAILY and WEEKLY
+     * use PagerAdapter to setup ViewPager
+     */
     private void setUpTabLayout() {
         bindings.tabLayout.addTab(bindings.tabLayout.newTab().setText("Daily"));
         bindings.tabLayout.addTab(bindings.tabLayout.newTab().setText("Weekly"));
@@ -65,6 +76,11 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * setup Option Menu with 3 action: refresh button, location button and about option.
+     * @param item
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -77,12 +93,18 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
             default: {
+                //refresh weather data
                 pagerAdapter.refreshData();
             }
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+    /**
+     * show alert dialog, user can change location to get weather information
+     * when user click set location button, location value will stored to SharePreference, and app will call request to update weather data
+     */
     private void showLocationDialog() {
         final EditText editTextLocation = new EditText(MainActivity.this);
         editTextLocation.setMaxLines(2);
@@ -114,6 +136,10 @@ public class MainActivity extends AppCompatActivity {
                         .setView(editTextLocation);
         alertDialog.create().show();
     }
+
+    /**
+     * show about dialog to introduce app
+     */
     private void showAboutDialog() {
         AlertDialog.Builder aboutAlertDialog = new AlertDialog.Builder(MainActivity.this);
         aboutAlertDialog.setTitle("About");

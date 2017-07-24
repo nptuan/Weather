@@ -40,7 +40,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
- * Created by Nguyễn Phương Tuấn on 18-Jul-17.
+ * Created by Nguyễn Phương Tuấn on 23-Jul-17.
  */
 
 public class WeeklyWeatherFragment extends Fragment {
@@ -54,6 +54,9 @@ public class WeeklyWeatherFragment extends Fragment {
         return binding.getRoot();
     }
 
+    /**
+     * get and set weather data info
+     */
     private void setData() {
         Gson gson = new GsonBuilder()
                 .setLenient()
@@ -69,6 +72,11 @@ public class WeeklyWeatherFragment extends Fragment {
         setWeeklyWeatherData(service);
     }
 
+    /**
+     * make a request call to get data
+     * when call response, update data to view
+     * @param service
+     */
     private void setWeeklyWeatherData(RetrofitInterface service) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM");
         String currentDateTime= sdf.format(new Date());
@@ -84,6 +92,7 @@ public class WeeklyWeatherFragment extends Fragment {
         call.enqueue(new Callback<WeeklyWeatherResponse>() {
             @Override
             public void onResponse(Call<WeeklyWeatherResponse> call, Response<WeeklyWeatherResponse> response) {
+                //response success
                 if (response.isSuccessful() & response.body() != null) {
 
                     ((AppCompatActivity)getActivity()).getSupportActionBar()
@@ -99,6 +108,7 @@ public class WeeklyWeatherFragment extends Fragment {
                 }
             }
 
+            //request fail, show error message to snakebar
             @Override
             public void onFailure(Call<WeeklyWeatherResponse> call, Throwable t) {
 
@@ -106,6 +116,9 @@ public class WeeklyWeatherFragment extends Fragment {
         });
     }
 
+    /**
+     * refresh weather data by call setData() method to call new request
+     */
     public void refreshData() {
         setData();
     }
